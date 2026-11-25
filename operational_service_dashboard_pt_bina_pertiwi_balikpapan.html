@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Operational Service Balikpapan - PT Bina Pertiwi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk Visualisasi Business Service -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome untuk Ikon Industrial & Operasional -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        bp: {
+                            navy: '#0B2545',     // Biru tua korporat utama
+                            blue: '#13315C',     // Biru sekunder
+                            accent: '#F59E0B',   // Kuning aksen alat berat (Komatsu/Heavy Equipment vibe)
+                            accentHover: '#D97706',
+                            light: '#F1F5F9',    // Abu-abu terang bersih untuk keterbacaan di lapangan
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F1F5F9;
+            color: #0F172A;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom Scrollbar halus */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94A3B8;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748B;
+        }
+        /* Transisi halaman */
+        .tab-content {
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Safe area padding untuk HP modern (iPhone/Android gesture bar) */
+        .pb-safe {
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+    <!-- ========================================== -->
+    <!-- SIDEBAR NAVIGASI (TAMPILAN TABLET & DESKTOP) -->
+    <!-- ========================================== -->
+    <aside class="hidden md:flex md:flex-col md:w-64 lg:w-72 bg-bp-navy text-white fixed inset-y-0 left-0 z-30 shadow-xl">
+        <!-- Brand Header -->
+        <div class="p-6 border-b border-slate-700/70 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-bp-accent text-bp-navy flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
+                BP
+            </div>
+            <div>
+                <h1 class="font-bold text-base tracking-tight leading-tight text-white">PT BINA PERTIWI</h1>
+                <p class="text-xs text-amber-400 font-semibold tracking-wider uppercase mt-0.5">Cabang Balikpapan</p>
+            </div>
+        </div>
+
+        <!-- Menu Navigasi Desktop -->
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Modul Operasional</p>
+            
+            <button onclick="switchTab('tasks')" id="nav-desk-tasks" class="nav-desk-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-left font-semibold text-sm transition-all bg-bp-accent text-bp-navy shadow-md">
+                <i class="fa-solid fa-clipboard-check text-lg w-5 text-center"></i>
+                <div>
+                    <div>Tasklist Job Foreman</div>
+                    <div class="text-[11px] opacity-80 font-normal">Daily Control & WO</div>
+                </div>
+            </button>
+
+            <button onclick="switchTab('rental')" id="nav-desk-rental" class="nav-desk-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-left font-semibold text-sm text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                <i class="fa-solid fa-truck-ramp-box text-lg w-5 text-center"></i>
+                <div>
+                    <div>Unit Rental & PM Plan</div>
+                    <div class="text-[11px] opacity-75 font-normal">Fleet Status & Jadwal HM</div>
+                </div>
+            </button>
+
+            <button onclick="switchTab('business')" id="nav-desk-business" class="nav-desk-btn w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-left font-semibold text-sm text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                <i class="fa-solid fa-chart-line text-lg w-5 text-center"></i>
+                <div>
+                    <div>Business Service</div>
+                    <div class="text-[11px] opacity-75 font-normal">Revenue, Billing & TAT</div>
+                </div>
+            </button>
+        </nav>
+
+        <!-- Footer Sidebar: Quick Report & Reset -->
+        <div class="p-4 border-t border-slate-700/70 space-y-2 bg-slate-900/40">
+            <button onclick="openSyncModal()" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-2 shadow transition">
+                <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Google Sheets Sync
+            </button>
+            <button onclick="openWaReportModal()" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-2 shadow transition">
+                <i class="fa-brands fa-whatsapp text-base"></i> Buat Laporan Harian WA
+            </button>
+            <button onclick="confirmResetData()" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium text-xs flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-rotate-left"></i> Reset Data Demo
+            </button>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- KONTEN UTAMA (HEADER + VIEWPORT MODUL)     -->
+    <!-- ========================================== -->
+    <div class="flex-1 md:ml-64 lg:ml-72 flex flex-col min-h-screen">
+        
+        <!-- Top Header Bar -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-6 lg:px-8 py-3.5 shadow-sm">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+                <!-- Judul & Tanggal -->
+                <div class="flex items-center gap-3">
+                    <div class="md:hidden w-10 h-10 rounded-xl bg-bp-navy text-bp-accent flex items-center justify-center font-extrabold text-lg shadow">
+                        BP
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-base sm:text-lg lg:text-xl font-extrabold text-bp-navy tracking-tight">
+                                Operational Service Balikpapan
+                            </h2>
+                            <button onclick="openSyncModal()" id="sync-status-badge" title="Klik untuk atur koneksi Google Sheets" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition cursor-pointer">
+                                <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                <span id="sync-status-text">Offline Mode (Local)</span>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium flex items-center gap-2 mt-0.5">
+                            <span><i class="fa-regular fa-calendar text-bp-navy mr-1"></i><span id="current-date-display">Memuat tanggal...</span></span>
+                            <span id="last-synced-display" class="hidden sm:inline text-[11px] text-slate-400"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Profil Foreman & Aksi Cepat Mobile -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Tombol Sync & Refresh Cepat -->
+                    <button onclick="pullFromGoogleSheets(true)" id="btn-quick-pull" title="Tarik Data Terbaru dari Google Sheets" class="hidden p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 active:scale-95 transition">
+                        <i class="fa-solid fa-arrows-rotate text-sm"></i>
+                    </button>
+                    <button onclick="openSyncModal()" title="Pengaturan Google Sheets" class="md:hidden p-2.5 rounded-xl bg-blue-600 text-white shadow active:scale-95 transition">
+                        <i class="fa-solid fa-cloud text-base"></i>
+                    </button>
+                    <!-- Tombol WA Report di Mobile/Tablet -->
+                    <button onclick="openWaReportModal()" title="Generate Laporan WhatsApp" class="md:hidden p-2.5 rounded-xl bg-emerald-600 text-white shadow active:scale-95 transition">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                    </button>
+                    <button onclick="confirmResetData()" title="Reset Data Demo" class="md:hidden p-2.5 rounded-xl bg-slate-100 text-slate-600 border border-slate-300 active:scale-95 transition">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+
+                    <!-- Badge Profil Foreman -->
+                    <div class="flex items-center gap-2.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
+                        <div class="w-8 h-8 rounded-full bg-bp-navy text-white flex items-center justify-center font-bold text-xs">
+                            FS
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-bold text-slate-800 leading-none">Foreman Service</p>
+                            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Balikpapan Branch</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Area Konten Modul -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-safe md:pb-10">
+
+            <!-- ===================================================================== -->
+            <!-- HALAMAN 1: MONITORING TASKLIST JOB (FOREMAN DAILY CONTROL)            -->
+            <!-- ===================================================================== -->
+            <section id="view-tasks" class="tab-content space-y-5">
+                <!-- Header Section + Tombol Tambah -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800">Tasklist Job & Daily Control</h3>
+                        <p class="text-xs sm:text-sm text-slate-500">Kontrol eksekusi pekerjaan mekanik, *troubleshooting*, dan *follow-up* WO harian.</p>
+                    </div>
+                    <button onclick="openTaskModal()" class="w-full sm:w-auto px-4 py-3 bg-bp-navy hover:bg-bp-blue text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition">
+                        <i class="fa-solid fa-plus text-bp-accent"></i> Tambah Job / Task Baru
+                    </button>
+                </div>
+
+                <!-- KPI Ringkas Tasklist -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase">Total Job Aktif</p>
+                            <p id="kpi-task-active" class="text-2xl sm:text-3xl font-extrabold text-bp-navy mt-1">0</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-blue-50 text-bp-navy flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-red-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-red-600 uppercase">Urgent / Overdue</p>
+                            <p id="kpi-task-urgent" class="text-2xl sm:text-3xl font-extrabold text-red-600 mt-1">0</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-amber-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-amber-700 uppercase">In Progress</p>
+                            <p id="kpi-task-progress" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">0</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-wrench"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-700 uppercase">Completed</p>
+                            <p id="kpi-task-done" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">0</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bar Filter & Pencarian -->
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 justify-between">
+                    <!-- Filter Status -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                        <button onclick="setTaskFilter('ALL')" data-filter="ALL" class="task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-bp-navy text-white whitespace-nowrap transition">Semua</button>
+                        <button onclick="setTaskFilter('Open')" data-filter="Open" class="task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition">Open</button>
+                        <button onclick="setTaskFilter('In Progress')" data-filter="In Progress" class="task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition">In Progress</button>
+                        <button onclick="setTaskFilter('Pending Part')" data-filter="Pending Part" class="task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition">Pending Part</button>
+                        <button onclick="setTaskFilter('Done')" data-filter="Done" class="task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition">Done</button>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="task-search-input" onkeyup="renderTasks()" placeholder="Cari WO, unit, customer, PIC..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-bp-navy focus:bg-white">
+                    </div>
+                </div>
+
+                <!-- Grid Kartu Tasklist (Mobile-Friendly Cards) -->
+                <div id="task-list-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Kartu Task dirender via JS -->
+                </div>
+            </section>
+
+
+            <!-- ===================================================================== -->
+            <!-- HALAMAN 2: MONITORING & PLANNING UNIT RENTAL BALIKPAPAN               -->
+            <!-- ===================================================================== -->
+            <section id="view-rental" class="tab-content hidden space-y-5">
+                <!-- Header Section -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800">Unit Rental & Planning PM Balikpapan</h3>
+                        <p class="text-xs sm:text-sm text-slate-500">Pemantauan Physical Availability (PA%), Hour Meter (HM), dan jadwal Periodic Maintenance.</p>
+                    </div>
+                    <button onclick="openAddRentalModal()" class="w-full sm:w-auto px-4 py-3 bg-bp-navy hover:bg-bp-blue text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition">
+                        <i class="fa-solid fa-plus text-bp-accent"></i> Tambah Unit Rental
+                    </button>
+                </div>
+
+                <!-- KPI Ringkas Rental -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-[11px] font-bold text-slate-500 uppercase">Populasi Rental</p>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <p id="kpi-rent-total" class="text-2xl font-extrabold text-bp-navy">47</p>
+                            <span class="text-[11px] font-semibold text-slate-400">Unit</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3.5 rounded-2xl border border-blue-200 shadow-sm">
+                        <p class="text-[11px] font-bold text-blue-700 uppercase">Physical Avail (PA)</p>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <p id="kpi-rent-pa" class="text-2xl font-extrabold text-blue-700">95.7%</p>
+                            <span class="text-[11px] font-bold text-emerald-600">Target 95%</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3.5 rounded-2xl border border-emerald-200 shadow-sm">
+                        <p class="text-[11px] font-bold text-emerald-700 uppercase">Running / Standby</p>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <p id="kpi-rent-ready" class="text-2xl font-extrabold text-emerald-600">44</p>
+                            <span class="text-[11px] font-semibold text-emerald-600">Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3.5 rounded-2xl border border-red-200 shadow-sm">
+                        <p class="text-[11px] font-bold text-red-600 uppercase">Breakdown (B/D)</p>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <p id="kpi-rent-bd" class="text-2xl font-extrabold text-red-600">2</p>
+                            <span class="text-[11px] font-semibold text-red-500">Alert</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3.5 rounded-2xl border border-amber-200 shadow-sm col-span-2 sm:col-span-1">
+                        <p class="text-[11px] font-bold text-amber-700 uppercase">PM Due (&lt;50 HM)</p>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <p id="kpi-rent-pmdue" class="text-2xl font-extrabold text-amber-600">5</p>
+                            <span class="text-[11px] font-semibold text-amber-600">Unit</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab Navigasi: Live Fleet Status vs Planning PM -->
+                <div class="bg-white p-1.5 rounded-2xl border border-slate-200 inline-flex w-full sm:w-auto shadow-sm">
+                    <button onclick="switchRentalSubTab('fleet')" id="subtab-btn-fleet" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-bp-navy text-white shadow transition">
+                        <i class="fa-solid fa-truck-front mr-1.5"></i> Status Armada (Live Fleet)
+                    </button>
+                    <button onclick="switchRentalSubTab('planning')" id="subtab-btn-planning" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-bp-navy transition">
+                        <i class="fa-solid fa-calendar-days mr-1.5"></i> Planning Jadwal PM
+                    </button>
+                </div>
+
+                <!-- SUB-TAB A: LIVE FLEET STATUS -->
+                <div id="rental-sub-fleet" class="space-y-4">
+                    <!-- Filter Status Unit & Pencarian -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 justify-between">
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                            <button onclick="setRentalFilter('ALL')" data-rfilter="ALL" class="rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-bp-navy text-white whitespace-nowrap">Semua Unit</button>
+                            <button onclick="setRentalFilter('Running')" data-rfilter="Running" class="rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Running</button>
+                            <button onclick="setRentalFilter('Standby')" data-rfilter="Standby" class="rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Standby</button>
+                            <button onclick="setRentalFilter('Under PM')" data-rfilter="Under PM" class="rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Under PM</button>
+                            <button onclick="setRentalFilter('Breakdown')" data-rfilter="Breakdown" class="rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Breakdown</button>
+                            <button onclick="setRentalFilter('PM_DUE')" data-rfilter="PM_DUE" class="rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap"><i class="fa-solid fa-bell mr-1"></i>HM Mendekati PM</button>
+                        </div>
+
+                        <div class="relative w-full md:w-72">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="rental-search-input" onkeyup="renderFleetList()" placeholder="Cari Kode Unit, Model, Site..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-bp-navy">
+                        </div>
+                    </div>
+
+                    <!-- Daftar Unit Rental (Responsive Grid Cards agar nyaman di HP & Tab) -->
+                    <div id="fleet-list-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <!-- Unit Cards dirender via JS -->
+                    </div>
+                </div>
+
+                <!-- SUB-TAB B: PLANNING JADWAL SERVICE & PM -->
+                <div id="rental-sub-planning" class="hidden space-y-4">
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-base">Jadwal Periodic Maintenance (PM 250 / 500 / 1000 HM)</h4>
+                                <p class="text-xs text-slate-500">Alokasi mekanik dan estimasi jam kerja untuk mencegah jadwal bentrok di site.</p>
+                            </div>
+                            <button onclick="openAddPmPlanModal()" class="px-4 py-2.5 bg-bp-accent hover:bg-bp-accentHover text-bp-navy font-bold text-xs rounded-xl shadow flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-calendar-plus"></i> Tambah Jadwal PM
+                            </button>
+                        </div>
+
+                        <!-- Ringkasan Beban Kerja Mekanik -->
+                        <div id="mechanic-workload-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                            <!-- Diisi via JS -->
+                        </div>
+
+                        <!-- Timeline / List Jadwal PM -->
+                        <div id="pm-plan-container" class="space-y-3">
+                            <!-- Diisi via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ===================================================================== -->
+            <!-- HALAMAN 3: MONITORING BUSINESS SERVICE (REVENUE & PERFORMANCE)        -->
+            <!-- ===================================================================== -->
+            <section id="view-business" class="tab-content hidden space-y-5">
+                <!-- Header Section -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800">Monitoring Business Service</h3>
+                        <p class="text-xs sm:text-sm text-slate-500">Pencapaian Revenue Service (Part + Labor + Rental Support), status WO Billing, dan Turnaround Time.</p>
+                    </div>
+                    <button onclick="openAddWoModal()" class="w-full sm:w-auto px-4 py-3 bg-bp-navy hover:bg-bp-blue text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition">
+                        <i class="fa-solid fa-file-invoice-dollar text-bp-accent"></i> Input Work Order (WO)
+                    </button>
+                </div>
+
+                <!-- KPI Ringkas Business Service -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-bold text-slate-500 uppercase">Aktual vs Target Revenue</p>
+                            <span id="kpi-biz-pct" class="px-2 py-0.5 rounded-lg text-xs font-extrabold bg-emerald-100 text-emerald-700">84%</span>
+                        </div>
+                        <p id="kpi-biz-rev" class="text-xl sm:text-2xl font-extrabold text-bp-navy mt-1.5">Rp 715 Jt</p>
+                        <p class="text-xs text-slate-500 mt-1">Target Bulanan: <span class="font-bold text-slate-700">Rp 850 Jt</span></p>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-2.5 overflow-hidden">
+                            <div id="kpi-biz-bar" class="bg-bp-accent h-full rounded-full transition-all duration-500" style="width: 84%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500 uppercase">Total WO Billed (Closed)</p>
+                        <p id="kpi-biz-billed-val" class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1.5">Rp 485 Jt</p>
+                        <p class="text-xs text-slate-500 mt-1"><span id="kpi-biz-billed-count" class="font-bold text-slate-800">14</span> Work Order sudah terbit invoice</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500 uppercase">Work In Progress (WIP)</p>
+                        <p id="kpi-biz-wip-val" class="text-xl sm:text-2xl font-extrabold text-amber-600 mt-1.5">Rp 230 Jt</p>
+                        <p class="text-xs text-slate-500 mt-1"><span id="kpi-biz-wip-count" class="font-bold text-slate-800">8</span> WO aktif / menunggu part</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500 uppercase">Avg. Turnaround Time (TAT)</p>
+                        <div class="flex items-baseline gap-2 mt-1.5">
+                            <p class="text-xl sm:text-2xl font-extrabold text-bp-navy">3.2 Hari</p>
+                            <span class="text-xs font-bold text-emerald-600"><i class="fa-solid fa-arrow-down"></i> Cepat</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Standar KPI Cabang: <span class="font-bold text-slate-700">&le; 4.0 Hari</span></p>
+                    </div>
+                </div>
+
+                <!-- Grafik Visualisasi (Chart.js) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- Grafik Batang: Trend Revenue Mingguan -->
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm sm:text-base">Trend Pencapaian Revenue Service (Rp Juta)</h4>
+                                <p class="text-xs text-slate-500">Kontribusi Part Sales, Labor Service & Rental Support per Minggu</p>
+                            </div>
+                        </div>
+                        <div class="relative h-64 w-full">
+                            <canvas id="revenueTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Grafik Donut: Komposisi Revenue per Segmen -->
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="mb-3">
+                            <h4 class="font-bold text-slate-800 text-sm sm:text-base">Komposisi Segmen Service</h4>
+                            <p class="text-xs text-slate-500">Distribusi nilai pekerjaan bulan berjalan</p>
+                        </div>
+                        <div class="relative h-56 w-full flex items-center justify-center">
+                            <canvas id="segmentDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel / Kartu Monitoring WO & Billing -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-base">Daftar Monitoring Work Order (WO) & Billing</h4>
+                            <p class="text-xs text-slate-500">Klik status WO untuk memperbarui progres penagihan / administrasi.</p>
+                        </div>
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                            <button onclick="setWoFilter('ALL')" data-wfilter="ALL" class="wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-bp-navy text-white whitespace-nowrap">Semua</button>
+                            <button onclick="setWoFilter('Open WO')" data-wfilter="Open WO" class="wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Open WO</button>
+                            <button onclick="setWoFilter('Waiting Approval')" data-wfilter="Waiting Approval" class="wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Waiting Approval</button>
+                            <button onclick="setWoFilter('Waiting Part')" data-wfilter="Waiting Part" class="wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Waiting Part</button>
+                            <button onclick="setWoFilter('Ready to Invoice')" data-wfilter="Ready to Invoice" class="wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Ready to Invoice</button>
+                            <button onclick="setWoFilter('Billed')" data-wfilter="Billed" class="wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap">Billed</button>
+                        </div>
+                    </div>
+
+                    <!-- Responsive Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="py-3.5 px-4">No. WO & Segmen</th>
+                                    <th class="py-3.5 px-4">Customer / Unit</th>
+                                    <th class="py-3.5 px-4">Deskripsi Pekerjaan</th>
+                                    <th class="py-3.5 px-4 text-right">Nilai (Rp)</th>
+                                    <th class="py-3.5 px-4">Status Administrasi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wo-table-body" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                                <!-- Baris WO dirender via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- BOTTOM NAVIGATION BAR (KHUSUS HP / MOBILE) -->
+    <!-- ========================================== -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-bp-navy text-white border-t border-slate-700 z-30 flex justify-around items-center py-2 px-1 shadow-2xl">
+        <button onclick="switchTab('tasks')" id="nav-mob-tasks" class="nav-mob-btn flex-1 flex flex-col items-center justify-center py-1.5 rounded-xl text-bp-accent transition">
+            <i class="fa-solid fa-clipboard-check text-lg"></i>
+            <span class="text-[11px] font-bold mt-1">Tasklist Job</span>
+        </button>
+        <button onclick="switchTab('rental')" id="nav-mob-rental" class="nav-mob-btn flex-1 flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-400 transition">
+            <i class="fa-solid fa-truck-ramp-box text-lg"></i>
+            <span class="text-[11px] font-semibold mt-1">Unit Rental</span>
+        </button>
+        <button onclick="switchTab('business')" id="nav-mob-business" class="nav-mob-btn flex-1 flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-400 transition">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+            <span class="text-[11px] font-semibold mt-1">Business</span>
+        </button>
+    </nav>
+
+
+    <!-- ===================================================================== -->
+    <!-- MODAL-MODAL INTERAKTIF                                                -->
+    <!-- ===================================================================== -->
+
+    <!-- 1. MODAL TAMBAH TASK BARU -->
+    <div id="modal-task" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-bp-navy text-base sm:text-lg">Tambah Job / Task Baru</h3>
+                <button onclick="closeModal('modal-task')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="form-add-task" onsubmit="handleAddTask(event)" class="space-y-3.5 mt-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Judul Pekerjaan / No. WO *</label>
+                    <input type="text" id="t-title" required placeholder="Misal: Troubleshooting Hydraulic Leak FD30" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Unit / Kode *</label>
+                        <input type="text" id="t-unit" required placeholder="FL-12 / FD30-6" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Customer / Site *</label>
+                        <input type="text" id="t-customer" required placeholder="PT PAMA BPOP" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Prioritas *</label>
+                        <select id="t-priority" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:border-bp-navy">
+                            <option value="Urgent">Urgent (B/D)</option>
+                            <option value="High">High</option>
+                            <option value="Normal" selected>Normal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">PIC Mekanik *</label>
+                        <input type="text" id="t-pic" required placeholder="Nama Mekanik" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Target Selesai *</label>
+                        <input type="date" id="t-due" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status Awal</label>
+                        <select id="t-status" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:border-bp-navy">
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Pending Part">Pending Part</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Teknis / Part</label>
+                    <textarea id="t-notes" rows="2" placeholder="Detail kebutuhan part atau temuan lapangan..." class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy"></textarea>
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal('modal-task')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl">Batal</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-bp-navy text-white font-bold text-sm rounded-xl shadow">Simpan Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MODAL EDIT STATUS & HM UNIT RENTAL -->
+    <div id="modal-edit-rental" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-bp-navy text-base sm:text-lg">Update Unit Rental: <span id="edit-r-code-title" class="text-amber-600"></span></h3>
+                <button onclick="closeModal('modal-edit-rental')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveRentalUpdate(event)" class="space-y-3.5 mt-4">
+                <input type="hidden" id="edit-r-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Hour Meter (HM) Saat Ini</label>
+                        <input type="number" id="edit-r-hm" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-bold focus:outline-none focus:border-bp-navy">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Target Next PM (HM)</label>
+                        <input type="number" id="edit-r-nextpm" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-bold focus:outline-none focus:border-bp-navy">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Status Operasional Unit</label>
+                    <select id="edit-r-status" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white font-semibold focus:outline-none focus:border-bp-navy">
+                        <option value="Running">Running (Beroperasi)</option>
+                        <option value="Standby">Standby (Ready Site)</option>
+                        <option value="Under PM">Under PM (Sedang Servis)</option>
+                        <option value="Breakdown">Breakdown (B/D)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi / Site Customer</label>
+                    <input type="text" id="edit-r-site" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Backlog / Kondisi</label>
+                    <textarea id="edit-r-backlog" rows="2" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-bp-navy"></textarea>
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal('modal-edit-rental')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl">Batal</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-bp-navy text-white font-bold text-sm rounded-xl shadow">Update Unit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. MODAL TAMBAH UNIT RENTAL BARU -->
+    <div id="modal-add-rental" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-bp-navy text-base sm:text-lg">Tambah Unit Rental Baru</h3>
+                <button onclick="closeModal('modal-add-rental')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleAddRentalUnit(event)" class="space-y-3.5 mt-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kode Unit *</label>
+                        <input type="text" id="new-r-code" required placeholder="FL-48 / GS-05" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Model / Tipe *</label>
+                        <input type="text" id="new-r-model" required placeholder="Komatsu FD30-17" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Customer / Site *</label>
+                    <input type="text" id="new-r-site" required placeholder="PT PAMA BPOP / Kariangau" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">HM Saat Ini *</label>
+                        <input type="number" id="new-r-hm" required value="0" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Next PM HM *</label>
+                        <input type="number" id="new-r-nextpm" required value="250" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Awal</label>
+                    <input type="text" id="new-r-backlog" placeholder="Unit baru mobilisasi, kondisi normal" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal('modal-add-rental')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl">Batal</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-bp-navy text-white font-bold text-sm rounded-xl shadow">Simpan Unit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. MODAL TAMBAH JADWAL PM -->
+    <div id="modal-add-pm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-bp-navy text-base sm:text-lg">Rencanakan Jadwal PM</h3>
+                <button onclick="closeModal('modal-add-pm')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleAddPmPlan(event)" class="space-y-3.5 mt-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kode Unit *</label>
+                        <input type="text" id="pm-unit" required placeholder="FL-04" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Interval PM *</label>
+                        <select id="pm-type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white">
+                            <option value="PM 250 HM">PM 250 HM</option>
+                            <option value="PM 500 HM">PM 500 HM</option>
+                            <option value="PM 1000 HM">PM 1000 HM</option>
+                            <option value="PM 2000 HM">PM 2000 HM</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi Site *</label>
+                    <input type="text" id="pm-site" required placeholder="PT PAMA BPOP" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Rencana *</label>
+                        <input type="date" id="pm-date" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Est. Man-Hours (Jam)</label>
+                        <input type="number" id="pm-hours" required value="4" min="1" max="24" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Alokasi Mekanik *</label>
+                    <input type="text" id="pm-mechanic" required placeholder="Rizky & Hendra" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal('modal-add-pm')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl">Batal</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-bp-navy text-white font-bold text-sm rounded-xl shadow">Simpan Jadwal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. MODAL TAMBAH WORK ORDER (BUSINESS SERVICE) -->
+    <div id="modal-add-wo" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-bp-navy text-base sm:text-lg">Input Work Order (WO) Baru</h3>
+                <button onclick="closeModal('modal-add-wo')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleAddWo(event)" class="space-y-3.5 mt-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WO *</label>
+                        <input type="text" id="wo-number" required placeholder="WO-BPN-2611-09" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Segmen *</label>
+                        <select id="wo-segment" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white">
+                            <option value="Periodic Maintenance">Periodic Maintenance</option>
+                            <option value="General Repair">General Repair</option>
+                            <option value="Overhaul">Overhaul</option>
+                            <option value="Rental Support">Rental Support</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Customer & Unit *</label>
+                    <input type="text" id="wo-customer" required placeholder="PT PAMA BPOP - Komatsu FD50" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Deskripsi Pekerjaan *</label>
+                    <input type="text" id="wo-desc" required placeholder="Reseal Tilt Cylinder & Ganti Hose" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nilai Estimasi (Rp Juta) *</label>
+                        <input type="number" step="0.5" id="wo-value" required placeholder="25" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status Awal</label>
+                        <select id="wo-status" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white">
+                            <option value="Open WO">Open WO</option>
+                            <option value="Waiting Approval">Waiting Approval</option>
+                            <option value="Waiting Part">Waiting Part</option>
+                            <option value="Ready to Invoice">Ready to Invoice</option>
+                            <option value="Billed">Billed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeModal('modal-add-wo')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl">Batal</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-bp-navy text-white font-bold text-sm rounded-xl shadow">Simpan WO</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. MODAL LAPORAN HARIAN WHATSAPP -->
+    <div id="modal-wa-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i>
+                    <h3 class="font-extrabold text-bp-navy text-base sm:text-lg">Laporan Harian Operational Service</h3>
+                </div>
+                <button onclick="closeModal('modal-wa-report')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 mb-3">Ringkasan otomatis siap salin (copy-paste) untuk dikirim ke grup koordinasi atau Branch Manager:</p>
+            <textarea id="wa-report-text" rows="12" readonly class="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 leading-relaxed focus:outline-none"></textarea>
+            <div class="mt-4 flex gap-2">
+                <button onclick="closeModal('modal-wa-report')" class="px-4 py-2.5 bg-slate-100 text-slate-700 font-bold text-sm rounded-xl">Tutup</button>
+                <button onclick="copyWaReport()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl shadow flex items-center justify-center gap-2">
+                    <i class="fa-regular fa-copy"></i> Salin Teks Laporan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. CUSTOM CONFIRMATION MODAL (PENGGANTI window.confirm) -->
+    <div id="modal-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 text-center">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl mb-3">
+                <i class="fa-solid fa-rotate-left"></i>
+            </div>
+            <h4 class="font-extrabold text-slate-800 text-base">Reset Data ke Awal?</h4>
+            <p class="text-xs text-slate-500 mt-1.5 mb-5">Semua perubahan task, status unit rental, dan WO yang Anda input akan dikembalikan ke data simulasi awal Balikpapan.</p>
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-confirm')" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl">Batal</button>
+                <button onclick="executeResetData()" class="flex-1 py-2.5 bg-red-600 text-white font-bold text-xs rounded-xl shadow">Ya, Reset Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. MODAL SINKRONISASI GOOGLE SHEETS (DATABASE ONLINE) -->
+    <div id="modal-sync" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-bp-navy text-base sm:text-lg leading-tight">Sinkronisasi Google Sheets</h3>
+                        <p class="text-[11px] text-slate-500">Simpan & sinkronkan data operasional antar HP, Tablet, dan Laptop</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-sync')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Sub-Tab Navigasi Modal -->
+            <div class="flex gap-2 mt-3 bg-slate-100 p-1 rounded-xl shrink-0">
+                <button onclick="switchSyncModalTab('config')" id="synctab-btn-config" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold bg-white text-bp-navy shadow-xs transition">
+                    1. Koneksi & Sinkronisasi
+                </button>
+                <button onclick="switchSyncModalTab('script')" id="synctab-btn-script" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold text-slate-600 hover:text-bp-navy transition">
+                    2. Kode Apps Script (Setup Awal)
+                </button>
+            </div>
+
+            <!-- Body Modal (Scrollable) -->
+            <div class="overflow-y-auto mt-4 pr-1 space-y-4 flex-1">
+                <!-- TAB 1: KONFIGURASI URL & SYNC -->
+                <div id="sync-panel-config" class="space-y-4">
+                    <div class="bg-blue-50/70 border border-blue-200 p-3.5 rounded-xl text-xs text-slate-700 space-y-1">
+                        <p class="font-bold text-bp-navy"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> Cara Kerja Sinkronisasi:</p>
+                        <p>Setiap perubahan yang Anda lakukan akan langsung dikirim ke Google Sheets di latar belakang. Jika sinyal di <em>site</em> hilang, data tetap aman di memori perangkat (<em>Offline Cache</em>).</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Google Apps Script Web App URL *</label>
+                        <input type="url" id="gas-web-app-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs sm:text-sm font-mono focus:outline-none focus:border-bp-navy">
+                        <p class="text-[11px] text-slate-400 mt-1">Pastikan URL berakhiran <code class="text-slate-600 font-bold">/exec</code> dan akses di-set ke <strong>Anyone (Siapa saja)</strong>.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <button onclick="saveAndTestGasUrl()" class="py-2.5 px-4 bg-bp-navy hover:bg-bp-blue text-white font-bold text-xs rounded-xl shadow flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-plug-circle-check text-bp-accent"></i> Simpan & Tes Koneksi
+                        </button>
+                        <button onclick="resetToDefaultGasUrl()" class="py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-bp-navy border border-blue-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-rotate"></i> Reset ke URL Default
+                        </button>
+                    </div>
+                    <div>
+                        <button onclick="disconnectGasUrl()" class="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-link-slash"></i> Putuskan Sementara (Mode Offline)
+                        </button>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-4 space-y-2.5">
+                        <p class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Kontrol Data Manual</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button onclick="pullFromGoogleSheets(true)" class="py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center gap-2 transition">
+                                <i class="fa-solid fa-cloud-arrow-down text-sm"></i> Tarik Data dari Sheet (Pull)
+                            </button>
+                            <button onclick="pushToGoogleSheets(true)" class="py-3 px-4 bg-amber-500 hover:bg-amber-600 text-bp-navy font-bold text-xs rounded-xl shadow flex items-center justify-center gap-2 transition">
+                                <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Kirim Data Saat Ini ke Sheet (Push)
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-500"><strong>Tips Setup Pertama Kali:</strong> Setelah menempelkan URL Web App, klik <strong>"Kirim Data Saat Ini ke Sheet (Push)"</strong> untuk membuat otomatis 3 tab (<code class="bg-slate-100 px-1 rounded">Tasklist</code>, <code class="bg-slate-100 px-1 rounded">RentalUnits</code>, <code class="bg-slate-100 px-1 rounded">BusinessService</code>) beserta data awalnya.</p>
+                    </div>
+                </div>
+
+                <!-- TAB 2: KODE GOOGLE APPS SCRIPT -->
+                <div id="sync-panel-script" class="hidden space-y-3">
+                    <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-slate-700 space-y-1">
+                        <p class="font-bold text-amber-900">Langkah Setup di Google Sheets (Cukup 2 Menit):</p>
+                        <ol class="list-decimal list-inside space-y-0.5 text-[11px]">
+                            <li>Buka Google Sheets baru, beri nama <strong>Database Service BP Balikpapan</strong>.</li>
+                            <li>Klik menu <strong>Extensions (Ekstensi) &gt; Apps Script</strong>.</li>
+                            <li>Hapus semua kode bawaan, lalu <strong>Salin &amp; Tempel</strong> kode di bawah ini.</li>
+                            <li>Klik <strong>Deploy &gt; New deployment &gt; Web app</strong>.</li>
+                            <li>Pilih <em>Execute as:</em> <strong>Me</strong> dan <em>Who has access:</em> <strong>Anyone</strong>, lalu klik Deploy &amp; salin URL-nya.</li>
+                        </ol>
+                    </div>
+
+                    <div class="relative">
+                        <button onclick="copyGasScriptCode()" class="absolute top-2.5 right-2.5 px-3 py-1.5 bg-bp-navy hover:bg-bp-blue text-white text-[11px] font-bold rounded-lg shadow flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy text-bp-accent"></i> Salin Kode Script
+                        </button>
+                        <textarea id="gas-script-code-box" rows="12" readonly class="w-full p-3.5 pt-11 bg-slate-900 text-emerald-400 font-mono text-[11px] rounded-xl leading-relaxed focus:outline-none"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION (PENGGANTI alert) -->
+    <div id="toast-box" class="fixed bottom-20 md:bottom-6 right-4 md:right-6 bg-bp-navy text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs sm:text-sm font-semibold z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-bp-accent text-base"></i>
+        <span id="toast-message">Berhasil disimpan!</span>
+    </div>
+
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT LOGIC & DATA MANAGEMENT                                    -->
+    <!-- ===================================================================== -->
+    <script>
+        // ==========================================
+        // 1. INISIALISASI DATA DEMO REALISTIS BALIKPAPAN
+        // ==========================================
+        const STORAGE_KEY = 'bp_balikpapan_service_ops_v1';
+        const GAS_URL_KEY = 'bp_balikpapan_gas_url_v1';
+        const LAST_SYNC_KEY = 'bp_balikpapan_last_sync_v1';
+        const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyV-s9ycRrVQL0C_1ocpPwN2Aethn3CNCYEDt9KplCeuBC4kP9h8-uU4X6H6XstQgcYuA/exec';
+
+        const GAS_BACKEND_TEMPLATE = `// =========================================================================
+// BACKEND API GOOGLE SHEETS - OPERATIONAL SERVICE PT BINA PERTIWI BALIKPAPAN
+// =========================================================================
+
+function doGet(e) {
+  const action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'getAll';
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  if (action === 'getAll') {
+    const data = {
+      status: 'success',
+      tasks: readSheetAsObjects(ss, 'Tasklist'),
+      rentalUnits: readSheetAsObjects(ss, 'RentalUnits'),
+      workOrders: readSheetAsObjects(ss, 'BusinessService'),
+      pmPlans: readSheetAsObjects(ss, 'PMPlans')
+    };
+    return ContentService.createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok', message: 'API Ready' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    if (payload.action === 'syncAll' && payload.data) {
+      const d = payload.data;
+      if (d.tasks) writeObjectsToSheet(ss, 'Tasklist', ['id', 'title', 'unit', 'customer', 'priority', 'pic', 'dueDate', 'status', 'notes'], d.tasks);
+      if (d.rentalUnits) writeObjectsToSheet(ss, 'RentalUnits', ['id', 'code', 'model', 'site', 'hm', 'nextPm', 'status', 'backlog'], d.rentalUnits);
+      if (d.workOrders) writeObjectsToSheet(ss, 'BusinessService', ['id', 'number', 'segment', 'customer', 'desc', 'value', 'status'], d.workOrders);
+      if (d.pmPlans) writeObjectsToSheet(ss, 'PMPlans', ['id', 'unit', 'type', 'site', 'date', 'hours', 'mechanic'], d.pmPlans);
+      
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', timestamp: new Date().toISOString() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Invalid action' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function readSheetAsObjects(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return null;
+  const rows = sheet.getDataRange().getValues();
+  if (rows.length <= 1) return [];
+  const headers = rows[0];
+  return rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => {
+      let val = row[i];
+      if (h === 'hm' || h === 'nextPm' || h === 'hours' || h === 'value') {
+        val = Number(val) || 0;
+      } else if (val instanceof Date) {
+        val = Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+      } else {
+        val = String(val);
+      }
+      obj[h] = val;
+    });
+    return obj;
+  });
+}
+
+function writeObjectsToSheet(ss, sheetName, headers, items) {
+  let sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+  }
+  sheet.clearContents();
+  const rows = [headers];
+  items.forEach(item => {
+    rows.push(headers.map(h => item[h] !== undefined ? item[h] : ''));
+  });
+  sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#0B2545').setFontColor('#FFFFFF');
+  sheet.setFrozenRows(1);
+}`;
+
+        const defaultData = {
+            tasks: [
+                {
+                    id: 'TSK-101',
+                    title: 'Troubleshooting Hydraulic Leak Mast & Tilt Cylinder',
+                    unit: 'FL-14 (Komatsu FD30)',
+                    customer: 'PT PAMA BPOP',
+                    priority: 'Urgent',
+                    pic: 'Rizky Pratama',
+                    dueDate: '2026-11-26',
+                    status: 'In Progress',
+                    notes: 'Unit B/D di area warehouse. Mekanik sedang bongkar seal kit tilt cylinder.'
+                },
+                {
+                    id: 'TSK-102',
+                    title: 'Preventive Maintenance 500 HM & Ganti Filter Solar',
+                    unit: 'FL-07 (Komatsu FD50)',
+                    customer: 'Kariangau Terminal',
+                    priority: 'High',
+                    pic: 'Hendra Wijaya',
+                    dueDate: '2026-11-26',
+                    status: 'Open',
+                    notes: 'Part filter oli & fuel sudah dibawa mekanik pagi ini.'
+                },
+                {
+                    id: 'TSK-103',
+                    title: 'Commissioning & Load Bank Test Genset 150 kVA',
+                    unit: 'GS-03 (Denyo 150kVA)',
+                    customer: 'PT PAMA BPOP',
+                    priority: 'High',
+                    pic: 'Dedi Kurniawan',
+                    dueDate: '2026-11-27',
+                    status: 'In Progress',
+                    notes: 'Persiapan handover unit standby power ke tim GA customer.'
+                },
+                {
+                    id: 'TSK-104',
+                    title: 'Follow Up Quotation Overhaul Transmisi & Torque Converter',
+                    unit: 'FL-22 (Komatsu FD100)',
+                    customer: 'Semayang Port Logistik',
+                    priority: 'Normal',
+                    pic: 'Foreman / Admin',
+                    dueDate: '2026-11-28',
+                    status: 'Pending Part',
+                    notes: 'Menunggu approval PO dari customer & estimasi ETA disc clutch dari Jakarta.'
+                },
+                {
+                    id: 'TSK-105',
+                    title: 'Penggantian Ban Solid Rear & Inspeksi Rem',
+                    unit: 'FL-31 (Komatsu FD25)',
+                    customer: 'Balikpapan Baru Gudang',
+                    priority: 'Normal',
+                    pic: 'Andi Saputra',
+                    dueDate: '2026-11-26',
+                    status: 'Done',
+                    notes: 'Sudah selesai press ban dan test jalan. Unit kembali running.'
+                },
+                {
+                    id: 'TSK-106',
+                    title: 'Pengecekan Alternator Tidak Charging (Low Battery)',
+                    unit: 'FL-41 (Komatsu FD30)',
+                    customer: 'PT PAMA BPOP',
+                    priority: 'Urgent',
+                    pic: 'Rizky Pratama',
+                    dueDate: '2026-11-25',
+                    status: 'Pending Part',
+                    notes: 'IC Regulator alternator rusak. Menunggu pengiriman part dari depot Balikpapan.'
+                }
+            ],
+            // Representasi armada utama + ringkasan populasi 47 unit rental Balikpapan
+            rentalUnits: [
+                { id: 'U-01', code: 'FL-01', model: 'Komatsu FD30-17', site: 'PT PAMA BPOP', hm: 4480, nextPm: 4500, status: 'Running', backlog: 'HM mendekati PM 4500 (sisa 20 HM). Jadwalkan besok.' },
+                { id: 'U-02', code: 'FL-04', model: 'Komatsu FD50AYT-10', site: 'PT PAMA BPOP', hm: 6210, nextPm: 6500, status: 'Running', backlog: 'Kondisi normal, rembesan minor di hose power steering.' },
+                { id: 'U-03', code: 'FL-07', model: 'Komatsu FD50-10', site: 'Kariangau Terminal', hm: 3490, nextPm: 3500, status: 'Under PM', backlog: 'Sedang eksekusi PM 500 HM oleh mekanik Hendra.' },
+                { id: 'U-04', code: 'FL-14', model: 'Komatsu FD30-17', site: 'PT PAMA BPOP', hm: 5120, nextPm: 5250, status: 'Breakdown', backlog: 'Seal tilt cylinder bocor deras. Sedang perbaikan di site.' },
+                { id: 'U-05', code: 'FL-19', model: 'Komatsu FD25-17', site: 'Somber Yard', hm: 2965, nextPm: 3000, status: 'Running', backlog: 'Sisa 35 HM menuju PM 1000 HM.' },
+                { id: 'U-06', code: 'FL-22', model: 'Komatsu FD100-8', site: 'Semayang Port', hm: 8840, nextPm: 9000, status: 'Breakdown', backlog: 'Slip transmisi maju, menunggu approval overhaul.' },
+                { id: 'U-07', code: 'FL-31', model: 'Komatsu FD25-17', site: 'Balikpapan Baru', hm: 1750, nextPm: 2000, status: 'Running', backlog: 'Baru selesai penggantian ban belakang, unit sehat.' },
+                { id: 'U-08', code: 'FL-38', model: 'Komatsu FD30-17', site: 'Workshop BP BPN', hm: 4100, nextPm: 4250, status: 'Standby', backlog: 'Unit ready siap mobilisasi untuk backup rental.' },
+                { id: 'U-09', code: 'GS-01', model: 'Genset Denyo 100 kVA', site: 'PT PAMA BPOP', hm: 1475, nextPm: 1500, status: 'Running', backlog: 'Standby power utama, sisa 25 HM menuju PM.' },
+                { id: 'U-10', code: 'GS-03', model: 'Genset Denyo 150 kVA', site: 'PT PAMA BPOP', hm: 25, nextPm: 250, status: 'Standby', backlog: 'Tahap commissioning & load test sebelum serah terima.' }
+            ],
+            // Total populasi kontrak rental Balikpapan (47 unit total: 10 unit dipantau intensif di atas + 37 unit fleet reguler running normal)
+            baseFleetOffset: 37,
+            pmPlans: [
+                { id: 'PM-01', unit: 'FL-01', type: 'PM 500 HM', site: 'PT PAMA BPOP', date: '2026-11-27', hours: 4, mechanic: 'Hendra Wijaya' },
+                { id: 'PM-02', unit: 'GS-01', type: 'PM 500 HM', site: 'PT PAMA BPOP', date: '2026-11-27', hours: 3, mechanic: 'Dedi Kurniawan' },
+                { id: 'PM-03', unit: 'FL-19', type: 'PM 1000 HM', site: 'Somber Yard', date: '2026-11-28', hours: 6, mechanic: 'Andi Saputra' },
+                { id: 'PM-04', unit: 'FL-04', type: 'PM 500 HM', site: 'PT PAMA BPOP', date: '2026-11-30', hours: 4, mechanic: 'Rizky Pratama' }
+            ],
+            workOrders: [
+                { id: 'WO-01', number: 'WO-BPN-2611-01', segment: 'Periodic Maintenance', customer: 'PT PAMA BPOP (Batch 1)', desc: 'Kontrak PM 500 HM 8 Unit Forklift', value: 145, status: 'Billed' },
+                { id: 'WO-02', number: 'WO-BPN-2611-02', segment: 'Rental Support', customer: 'PT PAMA BPOP', desc: 'Mobilisasi & Commissioning Genset 150 kVA', value: 85, status: 'Ready to Invoice' },
+                { id: 'WO-03', number: 'WO-BPN-2611-03', segment: 'General Repair', customer: 'Kariangau Terminal', desc: 'Perbaikan Sistem Rem & Mast Roller FD50', value: 62, status: 'Billed' },
+                { id: 'WO-04', number: 'WO-BPN-2611-04', segment: 'Overhaul', customer: 'Semayang Port Logistik', desc: 'Top Overhaul Engine Komatsu S6D102E', value: 195, status: 'Billed' },
+                { id: 'WO-05', number: 'WO-BPN-2611-05', segment: 'General Repair', customer: 'PT PAMA BPOP (FL-14)', desc: 'Reseal Tilt & Lift Cylinder + Ganti Hose', value: 28, status: 'Open WO' },
+                { id: 'WO-06', number: 'WO-BPN-2611-06', segment: 'Overhaul', customer: 'Semayang Port (FL-22)', desc: 'Overhaul Transmisi & Torque Converter FD100', value: 117, status: 'Waiting Approval' },
+                { id: 'WO-07', number: 'WO-BPN-2611-07', segment: 'Periodic Maintenance', customer: 'PT Kaltim Industrial', desc: 'PM 1000 HM & Flushing Radiator 3 Unit', value: 48, status: 'Billed' },
+                { id: 'WO-08', number: 'WO-BPN-2611-08', segment: 'General Repair', customer: 'PT PAMA BPOP (FL-41)', desc: 'Penggantian Alternator Assembly 24V', value: 35, status: 'Waiting Part' }
+            ]
+        };
+
+        let appState = loadState();
+        const storedGasUrl = localStorage.getItem(GAS_URL_KEY);
+        let gasWebAppUrl = storedGasUrl !== null ? storedGasUrl : DEFAULT_GAS_URL;
+        let currentTaskFilter = 'ALL';
+        let currentRentalFilter = 'ALL';
+        let currentWoFilter = 'ALL';
+// ... existing code ... -->
+        function disconnectGasUrl() {
+            gasWebAppUrl = '';
+            localStorage.setItem(GAS_URL_KEY, '');
+            document.getElementById('gas-web-app-url').value = '';
+            updateSyncBadgeUI('offline');
+            showToast('Koneksi diputuskan sementara. Beralih ke Offline Mode.');
+        }
+
+        async function resetToDefaultGasUrl() {
+            gasWebAppUrl = DEFAULT_GAS_URL;
+            localStorage.setItem(GAS_URL_KEY, DEFAULT_GAS_URL);
+            document.getElementById('gas-web-app-url').value = DEFAULT_GAS_URL;
+            await pullFromGoogleSheets(true);
+        }
+
+        async function pullFromGoogleSheets(showNotification = false) {
+            if (!gasWebAppUrl) {
+                updateSyncBadgeUI('offline');
+                if (showNotification) showToast('Masukkan URL Google Apps Script terlebih dahulu.');
+                return;
+            }
+            updateSyncBadgeUI('syncing');
+            try {
+                const separator = gasWebAppUrl.includes('?') ? '&' : '?';
+                const res = await fetch(`${gasWebAppUrl}${separator}action=getAll`);
+                const json = await res.json();
+                if (json && json.status === 'success') {
+                    if (Array.isArray(json.tasks) && json.tasks.length > 0) appState.tasks = json.tasks;
+                    if (Array.isArray(json.rentalUnits) && json.rentalUnits.length > 0) appState.rentalUnits = json.rentalUnits;
+                    if (Array.isArray(json.workOrders) && json.workOrders.length > 0) appState.workOrders = json.workOrders;
+                    if (Array.isArray(json.pmPlans) && json.pmPlans.length > 0) appState.pmPlans = json.pmPlans;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                    const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    localStorage.setItem(LAST_SYNC_KEY, nowStr);
+                    updateSyncBadgeUI('connected', nowStr);
+                    renderAll();
+                    if (showNotification) showToast('Data berhasil ditarik dari Google Sheets!');
+                } else {
+                    throw new Error(json.message || 'Gagal membaca response Google Sheets');
+                }
+            } catch (err) {
+                console.error('Pull Error:', err);
+                updateSyncBadgeUI('error');
+                if (showNotification) showToast('Gagal terhubung ke Sheet. Memakai data cache lokal.');
+            }
+        }
+
+        async function pushToGoogleSheets(showNotification = false) {
+            if (!gasWebAppUrl) return;
+            updateSyncBadgeUI('syncing');
+            try {
+                const res = await fetch(gasWebAppUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'syncAll', data: appState })
+                });
+                const json = await res.json();
+                if (json && json.status === 'success') {
+                    const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    localStorage.setItem(LAST_SYNC_KEY, nowStr);
+                    updateSyncBadgeUI('connected', nowStr);
+                    if (showNotification) showToast('Data berhasil dikirim ke Google Sheets!');
+                } else {
+                    throw new Error(json.message || 'Push gagal');
+                }
+            } catch (err) {
+                console.error('Push Error:', err);
+                updateSyncBadgeUI('error');
+                if (showNotification) showToast('Gagal sync online. Perubahan tersimpan di lokal.');
+            }
+        }
+
+        // ==========================================
+        // 2. STATE MANAGEMENT & PERSISTENCE
+        // ==========================================
+        let revenueChartInstance = null;
+        let segmentChartInstance = null;
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.tasks)) return parsed;
+                }
+            } catch (e) {
+                console.warn('Gagal memuat state lokal:', e);
+            }
+            return JSON.parse(JSON.stringify(defaultData));
+        }
+
+        function saveState(autoPush = true) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.error('Gagal menyimpan state:', e);
+            }
+            if (autoPush && gasWebAppUrl) {
+                pushToGoogleSheets(false);
+            }
+        }
+
+        // ==========================================
+        // 3. NAVIGASI TAB & MODALS
+        // ==========================================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${tabName}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update tombol desktop
+            document.querySelectorAll('.nav-desk-btn').forEach(btn => {
+                btn.classList.remove('bg-bp-accent', 'text-bp-navy', 'shadow-md');
+                btn.classList.add('text-slate-300', 'hover:bg-slate-800/80', 'hover:text-white');
+            });
+            const activeDesk = document.getElementById(`nav-desk-${tabName}`);
+            if (activeDesk) {
+                activeDesk.classList.add('bg-bp-accent', 'text-bp-navy', 'shadow-md');
+                activeDesk.classList.remove('text-slate-300', 'hover:bg-slate-800/80', 'hover:text-white');
+            }
+
+            // Update tombol mobile
+            document.querySelectorAll('.nav-mob-btn').forEach(btn => {
+                btn.classList.remove('text-bp-accent');
+                btn.classList.add('text-slate-400');
+            });
+            const activeMob = document.getElementById(`nav-mob-${tabName}`);
+            if (activeMob) {
+                activeMob.classList.add('text-bp-accent');
+                activeMob.classList.remove('text-slate-400');
+            }
+
+            if (tabName === 'business') {
+                setTimeout(renderBusinessCharts, 60);
+            }
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            }
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-box');
+            const label = document.getElementById('toast-message');
+            if (!toast || !label) return;
+            label.textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3200);
+        }
+
+        // ==========================================
+        // 4. MODUL 1: TASKLIST JOB FOREMAN
+        // ==========================================
+        function setTaskFilter(filter) {
+            currentTaskFilter = filter;
+            document.querySelectorAll('.task-filter-btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-filter') === filter;
+                btn.className = isActive
+                    ? 'task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-bp-navy text-white whitespace-nowrap transition'
+                    : 'task-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition';
+            });
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('task-list-container');
+            if (!container) return;
+
+            const search = (document.getElementById('task-search-input')?.value || '').toLowerCase();
+            const tasks = appState.tasks || [];
+
+            // Update KPI
+            const activeCount = tasks.filter(t => t.status !== 'Done').length;
+            const urgentCount = tasks.filter(t => t.priority === 'Urgent' && t.status !== 'Done').length;
+            const progressCount = tasks.filter(t => t.status === 'In Progress').length;
+            const doneCount = tasks.filter(t => t.status === 'Done').length;
+
+            document.getElementById('kpi-task-active').textContent = activeCount;
+            document.getElementById('kpi-task-urgent').textContent = urgentCount;
+            document.getElementById('kpi-task-progress').textContent = progressCount;
+            document.getElementById('kpi-task-done').textContent = doneCount;
+
+            const filtered = tasks.filter(t => {
+                const matchStatus = currentTaskFilter === 'ALL' || t.status === currentTaskFilter;
+                const matchQuery = !search ||
+                    (t.title || '').toLowerCase().includes(search) ||
+                    (t.unit || '').toLowerCase().includes(search) ||
+                    (t.customer || '').toLowerCase().includes(search) ||
+                    (t.pic || '').toLowerCase().includes(search);
+                return matchStatus && matchQuery;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 text-sm">Tidak ada job/task yang sesuai filter.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(task => {
+                const prioBadge = task.priority === 'Urgent'
+                    ? 'bg-red-100 text-red-700 border-red-200'
+                    : task.priority === 'High'
+                        ? 'bg-amber-100 text-amber-800 border-amber-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-200';
+
+                const statusColors = {
+                    'Open': 'bg-blue-50 text-blue-700 border-blue-200',
+                    'In Progress': 'bg-amber-50 text-amber-700 border-amber-200',
+                    'Pending Part': 'bg-purple-50 text-purple-700 border-purple-200',
+                    'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
+                const stBadge = statusColors[task.status] || statusColors['Open'];
+
+                return `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-bp-navy/40 transition">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold border ${prioBadge}">${escapeHtml(task.priority)}</span>
+                            <select onchange="updateTaskStatus('${task.id}', this.value)" class="px-2.5 py-1 rounded-lg text-xs font-bold border cursor-pointer focus:outline-none ${stBadge}">
+                                <option value="Open" ${task.status === 'Open' ? 'selected' : ''}>Open</option>
+                                <option value="In Progress" ${task.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="Pending Part" ${task.status === 'Pending Part' ? 'selected' : ''}>Pending Part</option>
+                                <option value="Done" ${task.status === 'Done' ? 'selected' : ''}>Done</option>
+                            </select>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm leading-snug ${task.status === 'Done' ? 'line-through opacity-60' : ''}">${escapeHtml(task.title)}</h4>
+                        <div class="mt-2.5 space-y-1 text-xs text-slate-600">
+                            <p><i class="fa-solid fa-tractor text-bp-navy w-4"></i> <span class="font-semibold">${escapeHtml(task.unit)}</span></p>
+                            <p><i class="fa-solid fa-building text-bp-navy w-4"></i> ${escapeHtml(task.customer)}</p>
+                            <p><i class="fa-solid fa-user-gear text-bp-navy w-4"></i> PIC: <span class="font-semibold">${escapeHtml(task.pic)}</span> &bull; Due: ${escapeHtml(task.dueDate)}</p>
+                        </div>
+                        ${task.notes ? `<p class="mt-2.5 p-2.5 bg-slate-50 rounded-xl text-[11px] text-slate-600 border border-slate-100">${escapeHtml(task.notes)}</p>` : ''}
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] font-mono text-slate-400">${escapeHtml(task.id)}</span>
+                        <button onclick="deleteTask('${task.id}')" class="text-xs text-slate-400 hover:text-red-600 px-2 py-1 rounded-lg transition" title="Hapus Task">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openTaskModal() {
+            document.getElementById('form-add-task').reset();
+            document.getElementById('t-due').value = new Date().toISOString().split('T')[0];
+            openModal('modal-task');
+        }
+
+        function handleAddTask(e) {
+            e.preventDefault();
+            const newTask = {
+                id: 'TSK-' + Math.floor(100 + Math.random() * 900),
+                title: document.getElementById('t-title').value.trim(),
+                unit: document.getElementById('t-unit').value.trim(),
+                customer: document.getElementById('t-customer').value.trim(),
+                priority: document.getElementById('t-priority').value,
+                pic: document.getElementById('t-pic').value.trim(),
+                dueDate: document.getElementById('t-due').value,
+                status: document.getElementById('t-status').value,
+                notes: document.getElementById('t-notes').value.trim()
+            };
+            appState.tasks.unshift(newTask);
+            saveState(true);
+            renderTasks();
+            closeModal('modal-task');
+            showToast('Task baru berhasil ditambahkan!');
+        }
+
+        function updateTaskStatus(id, newStatus) {
+            const task = appState.tasks.find(t => t.id === id);
+            if (task) {
+                task.status = newStatus;
+                saveState(true);
+                renderTasks();
+                showToast(`Status ${task.unit} diperbarui ke ${newStatus}`);
+            }
+        }
+
+        function deleteTask(id) {
+            appState.tasks = appState.tasks.filter(t => t.id !== id);
+            saveState(true);
+            renderTasks();
+            showToast('Task dihapus.');
+        }
+
+        // ==========================================
+        // 5. MODUL 2: UNIT RENTAL & PLANNING PM
+        // ==========================================
+        function switchRentalSubTab(sub) {
+            const fleetDiv = document.getElementById('rental-sub-fleet');
+            const planDiv = document.getElementById('rental-sub-planning');
+            const btnFleet = document.getElementById('subtab-btn-fleet');
+            const btnPlan = document.getElementById('subtab-btn-planning');
+
+            if (sub === 'fleet') {
+                fleetDiv.classList.remove('hidden');
+                planDiv.classList.add('hidden');
+                btnFleet.className = 'flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-bp-navy text-white shadow transition';
+                btnPlan.className = 'flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-bp-navy transition';
+            } else {
+                fleetDiv.classList.add('hidden');
+                planDiv.classList.remove('hidden');
+                btnPlan.className = 'flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-bp-navy text-white shadow transition';
+                btnFleet.className = 'flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-bp-navy transition';
+                renderPmPlans();
+            }
+        }
+
+        function setRentalFilter(filter) {
+            currentRentalFilter = filter;
+            document.querySelectorAll('.rental-filter-btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-rfilter') === filter;
+                if (filter === 'PM_DUE' && isActive) {
+                    btn.className = 'rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-bp-navy whitespace-nowrap';
+                } else if (isActive) {
+                    btn.className = 'rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-bp-navy text-white whitespace-nowrap';
+                } else if (btn.getAttribute('data-rfilter') === 'PM_DUE') {
+                    btn.className = 'rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap';
+                } else {
+                    btn.className = 'rental-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap';
+                }
+            });
+            renderFleetList();
+        }
+
+        function renderFleetList() {
+            const container = document.getElementById('fleet-list-container');
+            if (!container) return;
+
+            const units = appState.rentalUnits || [];
+            const offset = Number(appState.baseFleetOffset) || 0;
+            const totalPop = units.length + offset;
+            const bdCount = units.filter(u => u.status === 'Breakdown').length;
+            const pmCount = units.filter(u => u.status === 'Under PM').length;
+            const readyCount = totalPop - bdCount - pmCount;
+            const paPct = totalPop > 0 ? (((totalPop - bdCount) / totalPop) * 100).toFixed(1) : '100.0';
+            const pmDueCount = units.filter(u => (Number(u.nextPm) - Number(u.hm)) <= 50).length;
+
+            document.getElementById('kpi-rent-total').textContent = totalPop;
+            document.getElementById('kpi-rent-pa').textContent = paPct + '%';
+            document.getElementById('kpi-rent-ready').textContent = readyCount;
+            document.getElementById('kpi-rent-bd').textContent = bdCount;
+            document.getElementById('kpi-rent-pmdue').textContent = pmDueCount;
+
+            const search = (document.getElementById('rental-search-input')?.value || '').toLowerCase();
+            const filtered = units.filter(u => {
+                const remHm = Number(u.nextPm) - Number(u.hm);
+                const matchFilter = currentRentalFilter === 'ALL'
+                    ? true
+                    : currentRentalFilter === 'PM_DUE'
+                        ? remHm <= 50
+                        : u.status === currentRentalFilter;
+                const matchSearch = !search ||
+                    (u.code || '').toLowerCase().includes(search) ||
+                    (u.model || '').toLowerCase().includes(search) ||
+                    (u.site || '').toLowerCase().includes(search);
+                return matchFilter && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 text-sm">Tidak ada unit rental yang sesuai filter.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(u => {
+                const remHm = Number(u.nextPm) - Number(u.hm);
+                const isDue = remHm <= 50;
+                const statusBadge = {
+                    'Running': 'bg-emerald-100 text-emerald-700',
+                    'Standby': 'bg-blue-100 text-blue-700',
+                    'Under PM': 'bg-amber-100 text-amber-800',
+                    'Breakdown': 'bg-red-100 text-red-700'
+                }[u.status] || 'bg-slate-100 text-slate-700';
+
+                return `
+                <div class="bg-white p-4 rounded-2xl border ${u.status === 'Breakdown' ? 'border-red-300' : isDue ? 'border-amber-300' : 'border-slate-200'} shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-extrabold text-bp-navy text-base">${escapeHtml(u.code)}</span>
+                                    ${isDue ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-bp-navy">PM DUE (${remHm} HM)</span>` : ''}
+                                </div>
+                                <p class="text-xs font-semibold text-slate-500">${escapeHtml(u.model)}</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${statusBadge}">${escapeHtml(u.status)}</span>
+                        </div>
+
+                        <p class="text-xs text-slate-600 mt-2.5"><i class="fa-solid fa-location-dot text-bp-navy mr-1"></i> ${escapeHtml(u.site)}</p>
+
+                        <div class="grid grid-cols-2 gap-2 mt-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[10px] font-bold uppercase">Current HM</span>
+                                <span class="font-extrabold text-slate-800 text-sm">${Number(u.hm).toLocaleString('id-ID')}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] font-bold uppercase">Next PM Target</span>
+                                <span class="font-extrabold ${isDue ? 'text-amber-600' : 'text-bp-navy'} text-sm">${Number(u.nextPm).toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+
+                        ${u.backlog ? `<p class="mt-2.5 text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">${escapeHtml(u.backlog)}</p>` : ''}
+                    </div>
+
+                    <div class="mt-3 pt-2.5 border-t border-slate-100 flex justify-end">
+                        <button onclick="openEditRentalModal('${u.id}')" class="px-3 py-1.5 bg-bp-navy/10 hover:bg-bp-navy hover:text-white text-bp-navy font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-pen-to-square"></i> Update HM / Status
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openEditRentalModal(id) {
+            const unit = appState.rentalUnits.find(u => u.id === id);
+            if (!unit) return;
+            document.getElementById('edit-r-id').value = unit.id;
+            document.getElementById('edit-r-code-title').textContent = unit.code;
+            document.getElementById('edit-r-hm').value = unit.hm;
+            document.getElementById('edit-r-nextpm').value = unit.nextPm;
+            document.getElementById('edit-r-status').value = unit.status;
+            document.getElementById('edit-r-site').value = unit.site;
+            document.getElementById('edit-r-backlog').value = unit.backlog || '';
+            openModal('modal-edit-rental');
+        }
+
+        function handleSaveRentalUpdate(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-r-id').value;
+            const unit = appState.rentalUnits.find(u => u.id === id);
+            if (unit) {
+                unit.hm = Number(document.getElementById('edit-r-hm').value) || 0;
+                unit.nextPm = Number(document.getElementById('edit-r-nextpm').value) || 250;
+                unit.status = document.getElementById('edit-r-status').value;
+                unit.site = document.getElementById('edit-r-site').value.trim();
+                unit.backlog = document.getElementById('edit-r-backlog').value.trim();
+                saveState(true);
+                renderFleetList();
+                closeModal('modal-edit-rental');
+                showToast(`Unit ${unit.code} berhasil diperbarui!`);
+            }
+        }
+
+        function openAddRentalModal() {
+            openModal('modal-add-rental');
+        }
+
+        function handleAddRentalUnit(e) {
+            e.preventDefault();
+            const newUnit = {
+                id: 'U-' + Math.floor(100 + Math.random() * 900),
+                code: document.getElementById('new-r-code').value.trim(),
+                model: document.getElementById('new-r-model').value.trim(),
+                site: document.getElementById('new-r-site').value.trim(),
+                hm: Number(document.getElementById('new-r-hm').value) || 0,
+                nextPm: Number(document.getElementById('new-r-nextpm').value) || 250,
+                status: 'Running',
+                backlog: document.getElementById('new-r-backlog').value.trim()
+            };
+            appState.rentalUnits.unshift(newUnit);
+            saveState(true);
+            renderFleetList();
+            closeModal('modal-add-rental');
+            showToast(`Unit ${newUnit.code} ditambahkan ke armada!`);
+        }
+
+        function renderPmPlans() {
+            const summaryEl = document.getElementById('mechanic-workload-summary');
+            const listEl = document.getElementById('pm-plan-container');
+            if (!summaryEl || !listEl) return;
+
+            const plans = appState.pmPlans || [];
+            const mechMap = {};
+            plans.forEach(p => {
+                mechMap[p.mechanic] = (mechMap[p.mechanic] || 0) + (Number(p.hours) || 0);
+            });
+
+            summaryEl.innerHTML = Object.entries(mechMap).map(([mech, hrs]) => `
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <p class="text-[11px] font-bold text-slate-500 truncate">${escapeHtml(mech)}</p>
+                    <p class="text-base font-extrabold text-bp-navy mt-0.5">${hrs} <span class="text-xs font-normal text-slate-500">Man-Hours</span></p>
+                </div>
+            `).join('');
+
+            if (plans.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Belum ada jadwal PM terencana.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = plans.map(p => `
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-bp-navy text-sm">${escapeHtml(p.unit)}</span>
+                            <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[11px] font-bold">${escapeHtml(p.type)}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i>${escapeHtml(p.site)} &bull; <i class="fa-solid fa-user-gear mx-1"></i>${escapeHtml(p.mechanic)}</p>
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-end gap-3">
+                        <div class="text-left sm:text-right">
+                            <p class="text-xs font-bold text-slate-800">${escapeHtml(p.date)}</p>
+                            <p class="text-[11px] text-slate-500">Est. ${p.hours} Jam</p>
+                        </div>
+                        <button onclick="deletePmPlan('${p.id}')" class="text-slate-400 hover:text-red-600 p-1.5" title="Hapus Jadwal">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddPmPlanModal() {
+            document.getElementById('pm-date').value = new Date().toISOString().split('T')[0];
+            openModal('modal-add-pm');
+        }
+
+        function handleAddPmPlan(e) {
+            e.preventDefault();
+            const newPlan = {
+                id: 'PM-' + Math.floor(100 + Math.random() * 900),
+                unit: document.getElementById('pm-unit').value.trim(),
+                type: document.getElementById('pm-type').value,
+                site: document.getElementById('pm-site').value.trim(),
+                date: document.getElementById('pm-date').value,
+                hours: Number(document.getElementById('pm-hours').value) || 4,
+                mechanic: document.getElementById('pm-mechanic').value.trim()
+            };
+            appState.pmPlans.push(newPlan);
+            saveState(true);
+            renderPmPlans();
+            closeModal('modal-add-pm');
+            showToast(`Jadwal PM ${newPlan.unit} berhasil disimpan!`);
+        }
+
+        function deletePmPlan(id) {
+            appState.pmPlans = appState.pmPlans.filter(p => p.id !== id);
+            saveState(true);
+            renderPmPlans();
+            showToast('Jadwal PM dihapus.');
+        }
+
+        // ==========================================
+        // 6. MODUL 3: BUSINESS SERVICE & WORK ORDERS
+        // ==========================================
+        function setWoFilter(filter) {
+            currentWoFilter = filter;
+            document.querySelectorAll('.wo-filter-btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-wfilter') === filter;
+                btn.className = isActive
+                    ? 'wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-bp-navy text-white whitespace-nowrap'
+                    : 'wo-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 whitespace-nowrap';
+            });
+            renderBusinessService();
+        }
+
+        function renderBusinessService() {
+            const tbody = document.getElementById('wo-table-body');
+            if (!tbody) return;
+
+            const wos = appState.workOrders || [];
+            const targetRev = 850;
+            const totalRev = wos.reduce((sum, w) => sum + (Number(w.value) || 0), 0);
+            const pct = Math.min(100, Math.round((totalRev / targetRev) * 100));
+
+            const billedWos = wos.filter(w => w.status === 'Billed');
+            const billedVal = billedWos.reduce((sum, w) => sum + (Number(w.value) || 0), 0);
+
+            const wipWos = wos.filter(w => w.status !== 'Billed');
+            const wipVal = wipWos.reduce((sum, w) => sum + (Number(w.value) || 0), 0);
+
+            document.getElementById('kpi-biz-rev').textContent = `Rp ${totalRev.toLocaleString('id-ID')} Jt`;
+            document.getElementById('kpi-biz-pct').textContent = `${pct}%`;
+            document.getElementById('kpi-biz-bar').style.width = `${pct}%`;
+            document.getElementById('kpi-biz-billed-val').textContent = `Rp ${billedVal.toLocaleString('id-ID')} Jt`;
+            document.getElementById('kpi-biz-billed-count').textContent = billedWos.length;
+            document.getElementById('kpi-biz-wip-val').textContent = `Rp ${wipVal.toLocaleString('id-ID')} Jt`;
+            document.getElementById('kpi-biz-wip-count').textContent = wipWos.length;
+
+            const filtered = wos.filter(w => currentWoFilter === 'ALL' || w.status === currentWoFilter);
+
+            tbody.innerHTML = filtered.map(w => {
+                const stColors = {
+                    'Open WO': 'bg-blue-50 text-blue-700 border-blue-200',
+                    'Waiting Approval': 'bg-purple-50 text-purple-700 border-purple-200',
+                    'Waiting Part': 'bg-amber-50 text-amber-700 border-amber-200',
+                    'Ready to Invoice': 'bg-cyan-50 text-cyan-700 border-cyan-200',
+                    'Billed': 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
+                const badge = stColors[w.status] || stColors['Open WO'];
+
+                return `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3.5 px-4">
+                        <p class="font-bold text-bp-navy">${escapeHtml(w.number)}</p>
+                        <span class="text-[11px] text-slate-500">${escapeHtml(w.segment)}</span>
+                    </td>
+                    <td class="py-3.5 px-4 font-semibold text-slate-700">${escapeHtml(w.customer)}</td>
+                    <td class="py-3.5 px-4 text-slate-600">${escapeHtml(w.desc)}</td>
+                    <td class="py-3.5 px-4 text-right font-extrabold text-slate-800">Rp ${Number(w.value).toLocaleString('id-ID')} Jt</td>
+                    <td class="py-3.5 px-4">
+                        <select onchange="updateWoStatus('${w.id}', this.value)" class="px-2.5 py-1 rounded-lg text-xs font-bold border cursor-pointer focus:outline-none ${badge}">
+                            <option value="Open WO" ${w.status === 'Open WO' ? 'selected' : ''}>Open WO</option>
+                            <option value="Waiting Approval" ${w.status === 'Waiting Approval' ? 'selected' : ''}>Waiting Approval</option>
+                            <option value="Waiting Part" ${w.status === 'Waiting Part' ? 'selected' : ''}>Waiting Part</option>
+                            <option value="Ready to Invoice" ${w.status === 'Ready to Invoice' ? 'selected' : ''}>Ready to Invoice</option>
+                            <option value="Billed" ${w.status === 'Billed' ? 'selected' : ''}>Billed</option>
+                        </select>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            renderBusinessCharts();
+        }
+
+        function openAddWoModal() {
+            openModal('modal-add-wo');
+        }
+
+        function handleAddWo(e) {
+            e.preventDefault();
+            const newWo = {
+                id: 'WO-' + Math.floor(100 + Math.random() * 900),
+                number: document.getElementById('wo-number').value.trim(),
+                segment: document.getElementById('wo-segment').value,
+                customer: document.getElementById('wo-customer').value.trim(),
+                desc: document.getElementById('wo-desc').value.trim(),
+                value: Number(document.getElementById('wo-value').value) || 0,
+                status: document.getElementById('wo-status').value
+            };
+            appState.workOrders.unshift(newWo);
+            saveState(true);
+            renderBusinessService();
+            closeModal('modal-add-wo');
+            showToast(`Work Order ${newWo.number} ditambahkan!`);
+        }
+
+        function updateWoStatus(id, newStatus) {
+            const wo = appState.workOrders.find(w => w.id === id);
+            if (wo) {
+                wo.status = newStatus;
+                saveState(true);
+                renderBusinessService();
+                showToast(`Status ${wo.number} diubah ke ${newStatus}`);
+            }
+        }
+
+        function renderBusinessCharts() {
+            if (typeof Chart === 'undefined') return;
+
+            const trendCanvas = document.getElementById('revenueTrendChart');
+            const donutCanvas = document.getElementById('segmentDonutChart');
+            if (!trendCanvas || !donutCanvas) return;
+
+            if (revenueChartInstance) revenueChartInstance.destroy();
+            if (segmentChartInstance) segmentChartInstance.destroy();
+
+            revenueChartInstance = new Chart(trendCanvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4 (Aktual)'],
+                    datasets: [
+                        { label: 'Billed (Rp Jt)', data: [140, 165, 180, 120], backgroundColor: '#0B2545', borderRadius: 6 },
+                        { label: 'WIP / Estimasi (Rp Jt)', data: [30, 45, 55, 110], backgroundColor: '#F59E0B', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            const segMap = {};
+            (appState.workOrders || []).forEach(w => {
+                segMap[w.segment] = (segMap[w.segment] || 0) + (Number(w.value) || 0);
+            });
+
+            segmentChartInstance = new Chart(donutCanvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(segMap),
+                    datasets: [{
+                        data: Object.values(segMap),
+                        backgroundColor: ['#0B2545', '#F59E0B', '#10B981', '#3B82F6'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        // ==========================================
+        // 7. LAPORAN WHATSAPP, SYNC MODAL & RESET
+        // ==========================================
+        function openWaReportModal() {
+            const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const tasks = appState.tasks || [];
+            const units = appState.rentalUnits || [];
+            const totalPop = units.length + (Number(appState.baseFleetOffset) || 0);
+            const bdUnits = units.filter(u => u.status === 'Breakdown');
+            const paPct = totalPop > 0 ? (((totalPop - bdUnits.length) / totalPop) * 100).toFixed(1) : '100.0';
+            const totalRev = (appState.workOrders || []).reduce((s, w) => s + (Number(w.value) || 0), 0);
+
+            const activeTasksText = tasks.filter(t => t.status !== 'Done')
+                .map((t, idx) => `${idx + 1}. [${t.status}] ${t.unit} - ${t.title} (PIC: ${t.pic})`)
+                .join('\n') || '- Semua task selesai';
+
+            const bdText = bdUnits.length > 0
+                ? bdUnits.map(u => `- ${u.code} (${u.site}): ${u.backlog || 'Dalam penanganan'}`).join('\n')
+                : '- Nihil (Semua unit ready)';
+
+            const report = `*LAPORAN HARIAN OPERATIONAL SERVICE*
+*PT BINA PERTIWI - CABANG BALIKPAPAN*
+Tanggal: ${today}
+
+*1. STATUS UNIT RENTAL (POPULASI: ${totalPop} UNIT)*
+- Physical Availability (PA): *${paPct}%*
+- Unit Breakdown (B/D): *${bdUnits.length} Unit*
+${bdText}
+
+*2. PROGRESS TASKLIST JOB FOREMAN*
+${activeTasksText}
+
+*3. RINGKASAN BUSINESS SERVICE*
+- Total Pipeline / Aktual WO: *Rp ${totalRev.toLocaleString('id-ID')} Juta* (Target: Rp 850 Juta)
+
+Demikian update operasional lapangan Balikpapan. Terima kasih.`;
+
+            document.getElementById('wa-report-text').value = report;
+            openModal('modal-wa-report');
+        }
+
+        function copyWaReport() {
+            const textarea = document.getElementById('wa-report-text');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('Laporan WhatsApp berhasil disalin!');
+        }
+
+        function openSyncModal() {
+            document.getElementById('gas-web-app-url').value = gasWebAppUrl || '';
+            document.getElementById('gas-script-code-box').value = GAS_BACKEND_TEMPLATE;
+            openModal('modal-sync');
+        }
+
+        function switchSyncModalTab(tab) {
+            const cfgPanel = document.getElementById('sync-panel-config');
+            const scrPanel = document.getElementById('sync-panel-script');
+            const btnCfg = document.getElementById('synctab-btn-config');
+            const btnScr = document.getElementById('synctab-btn-script');
+
+            if (tab === 'config') {
+                cfgPanel.classList.remove('hidden');
+                scrPanel.classList.add('hidden');
+                btnCfg.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold bg-white text-bp-navy shadow-xs transition';
+                btnScr.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold text-slate-600 hover:text-bp-navy transition';
+            } else {
+                cfgPanel.classList.add('hidden');
+                scrPanel.classList.remove('hidden');
+                btnScr.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold bg-white text-bp-navy shadow-xs transition';
+                btnCfg.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold text-slate-600 hover:text-bp-navy transition';
+            }
+        }
+
+        async function saveAndTestGasUrl() {
+            const url = document.getElementById('gas-web-app-url').value.trim();
+            if (!url) {
+                showToast('Tempelkan URL Web App terlebih dahulu.');
+                return;
+            }
+            gasWebAppUrl = url;
+            localStorage.setItem(GAS_URL_KEY, url);
+            await pullFromGoogleSheets(true);
+        }
+
+        function copyGasScriptCode() {
+            const box = document.getElementById('gas-script-code-box');
+            box.select();
+            document.execCommand('copy');
+            showToast('Kode Apps Script berhasil disalin!');
+        }
+
+        function updateSyncBadgeUI(state, timeStr = '') {
+            const badge = document.getElementById('sync-status-badge');
+            const dot = document.getElementById('sync-status-dot');
+            const text = document.getElementById('sync-status-text');
+            const pullBtn = document.getElementById('btn-quick-pull');
+            const lastSyncEl = document.getElementById('last-synced-display');
+
+            if (!badge || !dot || !text) return;
+
+            if (state === 'connected') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+                text.textContent = 'Google Sheets Connected';
+                if (pullBtn) pullBtn.classList.remove('hidden');
+                if (lastSyncEl && timeStr) lastSyncEl.textContent = `• Sync ${timeStr}`;
+            } else if (state === 'syncing') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 transition cursor-pointer';
+                dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-ping';
+                text.textContent = 'Menyinkronkan...';
+            } else if (state === 'error') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition cursor-pointer';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+                text.textContent = 'Offline Cache (Retry)';
+                if (pullBtn) pullBtn.classList.remove('hidden');
+            } else {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200 transition cursor-pointer';
+                dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+                text.textContent = 'Offline Mode (Local)';
+                if (pullBtn) pullBtn.classList.add('hidden');
+            }
+        }
+
+        function confirmResetData() {
+            openModal('modal-confirm');
+        }
+
+        function executeResetData() {
+            appState = JSON.parse(JSON.stringify(defaultData));
+            saveState(true);
+            renderAll();
+            closeModal('modal-confirm');
+            showToast('Data dikembalikan ke data awal Balikpapan.');
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function renderAll() {
+            renderTasks();
+            renderFleetList();
+            renderPmPlans();
+            renderBusinessService();
+        }
+
+        // ==========================================
+        // 8. INISIALISASI SAAT HALAMAN DIMUAT
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date-display');
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleDateString('id-ID', {
+                    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                });
+            }
+
+            renderAll();
+
+            if (gasWebAppUrl) {
+                const lastTime = localStorage.getItem(LAST_SYNC_KEY) || '';
+                updateSyncBadgeUI('connected', lastTime);
+                pullFromGoogleSheets(false);
+            } else {
+                updateSyncBadgeUI('offline');
+            }
+        });
+    </script>
+</body>
+</html>
